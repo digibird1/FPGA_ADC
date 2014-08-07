@@ -1,10 +1,10 @@
 -----------------------------------------------------------------------------
--- Title           : Title
+-- Title           : FT245 control
 -----------------------------------------------------------------------------
 -- Author          : Daniel Pelikan
--- Date Created    : xx-xx-2014
+-- Date Created    : 20-07-2014
 -----------------------------------------------------------------------------
--- Description     : Description
+-- Description     : State Machine for the FT245 fifo interface
 --							
 --
 -----------------------------------------------------------------------------
@@ -77,7 +77,7 @@ begin
 					next_state<=SM_Write;
 					
 			when SM_Write =>
-					-- put here a mode to stay in write mode if more data is available
+					
 				if(data_av='1' and TXE ='0' and read_data='0') then
 					next_state<=SM_Write;
 				else
@@ -104,8 +104,10 @@ begin
 				current_state<=next_state;
 				if (countup='1') then
 					counter<=counter+1;
-					int_FT_INOUT<="0011" & counter;--data_in;
-				end if;	
+					--int_FT_INOUT<="0011" & counter;--data_in;
+				end if;
+				int_FT_INOUT<=data_in;
+			
 		end if;
 	end process;
 
@@ -131,7 +133,7 @@ begin
 			when SM_Write => 				int_RD<='1';
 												int_OE<='1';
 												countup<='1';
-												if(TXE ='0') then 
+												if(TXE ='0' and data_av='1') then 
 													int_WR<='0'; -- the WR low can be used to trigger that the next byte is load into data_in
 												else 
 													int_WR<='1';
@@ -158,10 +160,7 @@ begin
 													int_RD<='1';
 												end if;	
 												--data_out <= FT_INOUT;
-												
-			
-
-									
+							
 							
 		end case;
 	end process;
